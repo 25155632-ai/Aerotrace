@@ -144,13 +144,13 @@ export default function AirspaceView({ observations, detections, selectedId, onS
           onPointerCancel={() => { drag.current = null; }}>
           <title>Recorded aircraft locations. Drag to rotate; select a marker to inspect an aircraft.</title>
           <defs>
-            <radialGradient id={`ocean-${id}`} cx="35%" cy="25%"><stop offset="0" stopColor="#295b49" /><stop offset=".8" stopColor="#173329" /><stop offset="1" stopColor="#0e201a" /></radialGradient>
+            <radialGradient id={`ocean-${id}`} cx="35%" cy="25%"><stop offset="0" stopColor="#295b58" /><stop offset=".8" stopColor="#173331" /><stop offset="1" stopColor="#0e201f" /></radialGradient>
             <clipPath id={`viewport-${id}`}><rect x="0" y="0" width="800" height="440" /></clipPath>
           </defs>
           <g clipPath={`url(#viewport-${id})`}>
-            <path d={path({ type: "Sphere" }) ?? ""} fill={`url(#ocean-${id})`} stroke="#52ac8c" strokeWidth="1.2" />
-            {land && <path data-testid="globe-land" d={path(land) ?? ""} fill="#285948" stroke="#76ae9a" strokeWidth=".5" />}
-            {grid && <path d={path(graticule) ?? ""} fill="none" stroke="#7bbea7" strokeWidth=".45" opacity=".27" />}
+            <path d={path({ type: "Sphere" }) ?? ""} fill={`url(#ocean-${id})`} stroke="#52aca6" strokeWidth="1.2" />
+            {land && <path data-testid="globe-land" d={path(land) ?? ""} fill="#285956" stroke="#76aeaa" strokeWidth=".5" />}
+            {grid && <path d={path(graticule) ?? ""} fill="none" stroke="#7bbeba" strokeWidth=".45" opacity=".27" />}
             {trails && positionedTracks.map(track => {
               const points = track.points.filter(positioned).map(row => [row.longitude!, row.latitude!]);
               if (points.length < 2) return null;
@@ -169,14 +169,14 @@ export default function AirspaceView({ observations, detections, selectedId, onS
                 onKeyDown={event => { if(event.key === "Enter" || event.key === " ") { event.preventDefault(); onSelect(track.icao24); } }}>
                 <title>{track.callsign ?? track.icao24} · last position {last.latitude!.toFixed(4)}, {last.longitude!.toFixed(4)} · {formatTs(last.observed_at)}</title>
                 <circle r="12" fill="transparent" />
-                {active && <circle r="10" fill="none" stroke="#f1fffa" strokeWidth="1" />}
+                {active && <circle r="10" fill="none" stroke="#f1fffe" strokeWidth="1" />}
                 <circle r="6" fill={color} fillOpacity=".14" stroke={color} strokeWidth="1" strokeDasharray={positioned(track.latest) ? undefined : "2 2"} />
                 <path d="M0,-6 L4,5 L0,3 L-4,5 Z" fill={color} transform={`rotate(${(last.heading_deg ?? 0)})`} />
-                {active && <text x="15" y="-10" fill="#f1fffa" fontSize="11" paintOrder="stroke" stroke="#0f221b" strokeWidth="3">{track.callsign ?? track.icao24}</text>}
+                {active && <text x="15" y="-10" fill="#f1fffe" fontSize="11" paintOrder="stroke" stroke="#0f2221" strokeWidth="3">{track.callsign ?? track.icao24}</text>}
               </g>;
             })}
           </g>
-          {!ordered.length && <text x="400" y="220" textAnchor="middle" fill="#e4f8f1" fontSize="16">Import a CSV to plot aircraft</text>}
+          {!ordered.length && <text x="400" y="220" textAnchor="middle" fill="#e4f8f7" fontSize="16">Import a CSV to plot aircraft</text>}
         </svg>
         <div className="airspace-map-readout"><span>{visibleCount} / {positionedTracks.length} positioned aircraft in view</span><span>Drag to rotate · + / − to zoom</span></div>
       </div>

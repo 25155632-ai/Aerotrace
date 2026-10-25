@@ -849,7 +849,7 @@ export function Dashboard() {
                 label="Aviation Intelligence. Real-Time Awareness."
                 mode="pingpong"
                 staggerDuration={0.02}
-                color="#e9fff5"
+                color="#effff9"
                 font={{
                   fontFamily: "Space Grotesk",
                   fontSize: 32,
@@ -895,19 +895,19 @@ export function Dashboard() {
               >
                 <OrbitButton
                   label="Launch Globe"
-                  fill="#34d399"
-                  textColor="#062419"
+                  fill="#a0f0d0"
+                  textColor="#082b22"
                   rounded={8}
                   padding="9px 16px"
                   stroke={{
                     size: 30,
-                    color: "#e9fff5",
+                    color: "#effff9",
                     speed: 50,
                     direction: "ccw",
                     hoverFill: 100,
                   }}
                   border={{
-                    borderColor: "rgba(233, 255, 245,0.3)",
+                    borderColor: "rgba(239, 255, 249,0.3)",
                     borderStyle: "solid",
                     borderWidth: 1,
                   }}

@@ -7,10 +7,10 @@ const HeroBackground = memo(function HeroBackground() {
   return (
     <Globe
       speed={0.4}
-      oceanColor="#091611"
-      outlineColor="#34d399"
-      graticuleColor="#20392e"
-      dots={{ color: "#e9fff5", size: 4, density: 8, allDots: false }}
+      oceanColor="#0a2928"
+      outlineColor="#a0f0d0"
+      graticuleColor="#234c49"
+      dots={{ color: "#effff9", size: 4, density: 8, allDots: false }}
       initialLatitude={30}
       initialLongitude={30}
       scale={10}
