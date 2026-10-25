@@ -1,0 +1,6 @@
+# Optional ML extras. The base backend does not require these packages.
+numpy>=2.0
+scikit-learn>=1.5
+joblib>=1.4
+xgboost>=2.1
+torch>=2.4

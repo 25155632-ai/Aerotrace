@@ -1,0 +1,2 @@
+# Optional infrastructure only; the local SQLite/outbox path does not need it.
+redis>=5.0

@@ -1,0 +1,7 @@
+# Direct dependencies only; transitive pins are resolved by pip at install time.
+# Install into a virtual environment: python -m venv .venv && .venv/bin/pip install -r requirements.txt
+fastapi==0.162.0
+uvicorn==0.54.0
+pydantic==2.14.1
+httpx==0.28.1
+pytest==9.1.1

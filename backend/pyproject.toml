@@ -1,0 +1,9 @@
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+
+[tool.ruff.lint]
+# E: pycodestyle errors, F: pyflakes. Kept deliberately narrow: this is a
+# small prototype codebase and the goal is real defects, not style churn.
+select = ["E", "F"]
+ignore = ["E501"]
