@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import CsvTracking from "./CsvTracking";
-import Globe from "./originkit/Globe";
+import AirspaceView from "./AirspaceView";
 import LetterSwap from "./originkit/LetterSwap";
 import OrbitButton from "./originkit/OrbitButton";
 import {
@@ -28,7 +28,6 @@ import {
 import { formatTs, groupTracks, type Track } from "../lib/explorer";
 
 type Tab = "overview" | "aircraft" | "investigation" | "alerts" | "import";
-type ViewMode = "globe" | "map";
 type TargetFilter = "all" | "signals";
 
 const PITCH_SNAPSHOT = {
@@ -63,7 +62,7 @@ const fallbackTrack: Track = {
   latest: {
     id: 0,
     icao24: "a4c91b",
-    observed_at: Date.now() / 1000,
+    observed_at: 0,
     latitude: 34.12,
     longitude: 35.81,
     baro_altitude_m: 8961,
@@ -73,7 +72,7 @@ const fallbackTrack: Track = {
     callsign: "EW-409",
     source: "demo",
     source_kind: "simulated",
-    received_at: Date.now() / 1000,
+    received_at: 0,
     quality_note: null,
   },
   latestPosition: null,
@@ -130,160 +129,10 @@ function Panel({
   );
 }
 
-function TacticalMap({
-  tracks,
-  selectedId,
-  onSelect,
-  layerState,
-  pitchMode,
-}: {
-  tracks: Track[];
-  selectedId: string | null;
-  onSelect: (icao24: string) => void;
-  layerState: Record<"observed" | "reference" | "deviation" | "mesh", boolean>;
-  pitchMode: boolean;
+function CsvImportPanel({ onImported, onViewOnGlobe }: {
+  onImported: () => Promise<void>;
+  onViewOnGlobe: (rows: Observation[], name: string, saved: boolean) => void;
 }) {
-  const width = 100;
-  const height = 60;
-  const project = (lat: number, lon: number) => ({
-    x: ((lon - 20) / 25) * width,
-    y: height - ((lat - 25) / 15) * height,
-  });
-  const mapTracks = tracks.filter(
-    (track) =>
-      track.latestPosition !== null &&
-      track.latestPosition.latitude !== null &&
-      track.latestPosition.longitude !== null,
-  );
-  const pitchPoints = PITCH_TARGETS.map((target) => ({
-    ...target,
-    ...project(target.lat, target.lon),
-  }));
-
-  return (
-    <div
-      className="tactical-map"
-      data-testid="tactical-map"
-      role="img"
-      aria-label="2D tactical aircraft map"
-    >
-      <svg viewBox="0 0 100 60" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="map-bg" x1="0" x2="1" y1="0" y2="1">
-            <stop offset="0" stopColor="#111a3c" />
-            <stop offset="1" stopColor="#06051a" />
-          </linearGradient>
-          <filter id="map-glow">
-            <feGaussianBlur stdDeviation="0.8" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
-        <rect width="100" height="60" fill="url(#map-bg)" />
-        {Array.from({ length: 9 }, (_, index) => (
-          <line
-            key={`v-${index}`}
-            x1={index * 12.5}
-            x2={index * 12.5}
-            y1="0"
-            y2="60"
-            className="map-grid-line"
-          />
-        ))}
-        {Array.from({ length: 7 }, (_, index) => (
-          <line
-            key={`h-${index}`}
-            x1="0"
-            x2="100"
-            y1={index * 10}
-            y2={index * 10}
-            className="map-grid-line"
-          />
-        ))}
-        <path
-          className="map-land"
-          d="M6 11L16 7L23 11L29 8L39 13L45 11L54 16L61 14L68 20L77 19L85 25L93 28L90 37L80 39L74 46L63 43L55 48L44 44L38 49L28 45L24 39L14 37L11 29L4 25Z"
-        />
-        <path
-          className={`map-reference ${layerState.reference ? "" : "muted"}`}
-          d="M18 36 C30 30, 38 24, 51 27 S70 24, 86 16"
-        />
-        <path
-          className={`map-deviation ${layerState.deviation ? "" : "muted"}`}
-          d="M48 27 L64 12"
-        />
-        {layerState.mesh && (
-          <g className="map-mesh">
-            {PITCH_TARGETS.map((target) => {
-              const point = project(target.lat, target.lon);
-              return <circle key={`mesh-${target.id}`} cx={point.x} cy={point.y} r="3.2" />;
-            })}
-          </g>
-        )}
-        {pitchMode &&
-          pitchPoints.map((point) => (
-            <g
-              key={point.id}
-              className={`map-target ${point.status}`}
-              onClick={() => onSelect(point.id)}
-              tabIndex={0}
-              role="button"
-              aria-label={`Focus ${point.callsign}`}
-            >
-              <circle cx={point.x} cy={point.y} r={point.id === selectedId ? 1.8 : 1.1} />
-              <circle cx={point.x} cy={point.y} r="3" className="map-target-ring" />
-              <text x={point.x + 1.7} y={point.y - 1.7}>
-                {point.callsign}
-              </text>
-            </g>
-          ))}
-        {layerState.observed &&
-          mapTracks.map((track) => {
-            const point = project(
-              track.latestPosition?.latitude as number,
-              track.latestPosition?.longitude as number,
-            );
-            return (
-              <g
-                key={track.icao24}
-                className={`map-target ${track.icao24 === selectedId ? "selected" : "nominal"}`}
-                onClick={() => onSelect(track.icao24)}
-                tabIndex={0}
-                role="button"
-                aria-label={`Focus ${track.callsign ?? track.icao24}`}
-              >
-                <circle cx={point.x} cy={point.y} r={track.icao24 === selectedId ? 1.8 : 1.05} />
-                <circle cx={point.x} cy={point.y} r="3" className="map-target-ring" />
-                <text x={point.x + 1.7} y={point.y - 1.7}>
-                  {track.callsign ?? track.icao24}
-                </text>
-              </g>
-            );
-          })}
-        <text x="3" y="56" className="map-label">
-          MEDITERRANEAN SECTOR // 2D TACTICAL VIEW
-        </text>
-        <text x="79" y="5" className="map-label">
-          N ↑
-        </text>
-      </svg>
-      <div className="map-overlay">
-        <span className="eyebrow">
-          {pitchMode ? "PITCH PRESET // SIMULATED TRACKS" : "STORED OBSERVATIONS"}
-        </span>
-        <span>
-          {pitchMode
-            ? `${PITCH_TARGETS.length} focus targets`
-            : `${mapTracks.length} positioned aircraft`}
-        </span>
-      </div>
-    </div>
-  );
-}
-
-function CsvImportPanel({ onImported }: { onImported: () => Promise<void> }) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [csvText, setCsvText] = useState("");
   const [sourceKind, setSourceKind] = useState<"simulated" | "real">("simulated");
@@ -453,7 +302,13 @@ function CsvImportPanel({ onImported }: { onImported: () => Promise<void> }) {
         )}
       </Panel>
       {preview && preview.observations.length > 0 && (
-        <CsvTracking key={`${fileName}-${sourceKind}`} observations={preview.observations} />
+        <>
+          <div className="csv-globe-action">
+            <button className="primary-button" disabled={busy} onClick={() => onViewOnGlobe(preview.observations, fileName ?? "CSV recording", Boolean(report))}>Show on globe</button>
+            <span>Open this recording on the main globe. {report ? "Rows were imported; run detection to generate findings." : "Preview only; import rows before running detection."}</span>
+          </div>
+          <CsvTracking key={`${fileName}-${sourceKind}`} observations={preview.observations} />
+        </>
       )}
       {(report?.errors ?? preview?.errors ?? []).length > 0 && (
         <Panel title="Rows requiring attention" kicker="VALIDATION REPORT">
@@ -786,11 +641,10 @@ function IncidentReplayPanel({
 
 export function Dashboard() {
   const [tab, setTab] = useState<Tab>("overview");
-  const [playing, setPlaying] = useState(true);
-  const [viewMode, setViewMode] = useState<ViewMode>("globe");
   const [targetFilter, setTargetFilter] = useState<TargetFilter>("all");
   const [pitchMode, setPitchMode] = useState(false);
   const [globeKey, setGlobeKey] = useState(0);
+  const [globeRecording, setGlobeRecording] = useState<{ observations: Observation[]; name: string; saved: boolean } | null>(null);
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [replayEventId, setReplayEventId] = useState<number | null>(null);
@@ -804,12 +658,7 @@ export function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const [layerState, setLayerState] = useState({
-    observed: true,
-    reference: true,
-    deviation: true,
-    mesh: true,
-  });
+
 
   const refresh = async () => {
     setLoading(true);
@@ -826,7 +675,7 @@ export function Dashboard() {
         fetchHealth(),
         fetchSources(),
         fetchObservations({ limit: 1000 }),
-        fetchAnomalies({ limit: 100 }),
+        fetchAnomalies({ limit: 1000 }),
         fetchEvents({ limit: 100 }),
         fetchAlerts(),
         fetchModelStatus(),
@@ -917,36 +766,14 @@ export function Dashboard() {
   };
 
   const targetPoints =
-    selectedTrack.points.length > 0 ? selectedTrack.points : [selectedTrack.latest];
+    selectedTrack.points.length > 0 ? selectedTrack.points : pitchMode ? [selectedTrack.latest] : [];
   const latest = selectedTrack.latestPosition ?? selectedTrack.latest;
   const latestTime = formatTs(selectedTrack.latest.observed_at);
 
   return (
     <div className="app-shell">
       <div className="ambient-grid" aria-hidden="true" />
-      <div className="world-backdrop" aria-hidden="true">
-        <Globe
-          key={globeKey}
-          speed={playing ? 0.4 : 0}
-          oceanColor="#0b0a1f"
-          outlineColor="#818cf8"
-          graticuleColor="#231f4a"
-          dots={{ color: "#e0e7ff", size: 4, density: 8, allDots: false }}
-          markerConfig={{
-            markers: [
-              { lat: 35.1, lng: 33.4 },
-              { lat: 33.9, lng: 35.5 },
-              { lat: 32.1, lng: 34.8 },
-            ],
-            color: "#ffb4ab",
-            size: 40,
-          }}
-          initialLatitude={30}
-          initialLongitude={30}
-          scale={10}
-          stopOnHover={false}
-        />
-      </div>
+      <div className="world-backdrop airspace-backdrop" aria-hidden="true" />
 
       <header className="topbar">
         <div className="brand-lockup">
@@ -1049,7 +876,7 @@ export function Dashboard() {
             <div className="hero-actions">
               <div
                 onClick={() => {
-                  setViewMode("globe");
+                  setGlobeKey(value => value + 1);
                   document
                     .getElementById("trajectory-view")
                     ?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1058,7 +885,7 @@ export function Dashboard() {
                 tabIndex={0}
                 onKeyDown={(event) => {
                   if (event.key === "Enter" || event.key === " ") {
-                    setViewMode("globe");
+                    setGlobeKey(value => value + 1);
                     document
                       .getElementById("trajectory-view")
                       ?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1304,139 +1131,21 @@ export function Dashboard() {
             </aside>
 
             <section className="center-column">
-              <Panel
-                title="Orbital trajectory matrix"
-                kicker="3D AIRSPACE VIEW"
-                className="globe-panel"
-              >
-                <div className="globe-stage" id="trajectory-view">
-                  <div className="globe-controls">
-                    <button
-                      className={viewMode === "globe" ? "active" : ""}
-                      onClick={() => setViewMode("globe")}
-                    >
-                      3D Globe
-                    </button>
-                    <button
-                      className={viewMode === "map" ? "active" : ""}
-                      onClick={() => setViewMode("map")}
-                    >
-                      2D Map
-                    </button>
-                    <div className="control-divider" />
-                    <button
-                      onClick={() => setPlaying((value) => !value)}
-                      title="Pause or resume globe"
-                    >
-                      <span className="material-symbols-outlined">
-                        {playing ? "pause" : "play_arrow"}
-                      </span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        setGlobeKey((value) => value + 1);
-                        setMessage("Camera reset to Mediterranean sector.");
-                      }}
-                      title="Reset camera"
-                    >
-                      <span className="material-symbols-outlined">restart_alt</span>
-                    </button>
-                  </div>
-                  <div className="layer-controls">
-                    <span className="eyebrow">ACTIVE LAYERS</span>
-                    {(["observed", "reference", "deviation", "mesh"] as const).map((layer) => (
-                      <label key={layer}>
-                        <input
-                          type="checkbox"
-                          checked={layerState[layer]}
-                          onChange={() =>
-                            setLayerState((state) => ({ ...state, [layer]: !state[layer] }))
-                          }
-                        />
-                        <i className={`legend-line ${layer}`} />
-                        <span>
-                          {layer === "observed"
-                            ? "Observed feed"
-                            : layer === "reference"
-                              ? "ICAO reference"
-                              : layer === "deviation"
-                                ? "Deviation vectors"
-                                : "Station mesh"}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                  {viewMode === "map" ? (
-                    <TacticalMap
-                      tracks={displayedTracks}
-                      selectedId={selectedTrack.icao24}
-                      onSelect={(id) => {
-                        setSelectedId(id);
-                        setTab("aircraft");
-                      }}
-                      layerState={layerState}
-                      pitchMode={pitchMode}
-                    />
-                  ) : (
-                    <div className="globe-art" aria-label="Decorative 3D globe visualization">
-                      <div
-                        className={`orbit-ring ring-one ${layerState.mesh ? "" : "hidden-layer"}`}
-                      />
-                      <div
-                        className={`orbit-ring ring-two ${layerState.mesh ? "" : "hidden-layer"}`}
-                      />
-                      <div className="planet">
-                        <div className="planet-grid" />
-                        <div className="continent" />
-                        <div
-                          className={`route nominal ${layerState.reference ? "" : "hidden-layer"}`}
-                        />
-                        <div
-                          className={`route deviation ${layerState.deviation ? "" : "hidden-layer"}`}
-                        />
-                        <div className={`reticle ${layerState.observed ? "" : "hidden-layer"}`}>
-                          <span />
-                        </div>
-                      </div>
-                      <div
-                        className={`trajectory-label danger-label ${layerState.deviation ? "" : "hidden-layer"}`}
-                      >
-                        DISCONTINUITY
-                        <br />
-                        <small>+18.4 NM Δx // 1.05s</small>
-                      </div>
-                    </div>
-                  )}
-                  <div className="globe-footer">
-                    <div>
-                      <span className="eyebrow">FOCUSED TARGET</span>
-                      <strong>
-                        {selectedTrack.callsign ?? selectedTrack.icao24.toUpperCase()}
-                      </strong>
-                      <span>
-                        {latest.latitude?.toFixed(4)}° N · {latest.longitude?.toFixed(4)}° E ·{" "}
-                        {latestTime}
-                      </span>
-                    </div>
-                    <div className="globe-footer-actions">
-                      <button
-                        className="action-button"
-                        onClick={() => {
-                          setQuery(selectedTrack.callsign ?? selectedTrack.icao24);
-                          setTargetFilter("all");
-                          setTab("aircraft");
-                          setMessage(`Isolated ${selectedTrack.callsign ?? selectedTrack.icao24}`);
-                        }}
-                      >
-                        Isolate track
-                      </button>
-                      <button className="primary-button" onClick={() => setTab("investigation")}>
-                        Open lab
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </Panel>
+              <div id="trajectory-view">
+                <AirspaceView
+                  key={globeKey}
+                  observations={globeRecording?.observations ?? observations}
+                  recording={globeRecording}
+                  detections={detections}
+                  selectedId={selectedId}
+                  onSelect={setSelectedId}
+                  query={query}
+                  signalsOnly={targetFilter === "signals"}
+                  onOpenImport={() => setTab("import")}
+                  onUseStored={() => { setGlobeRecording(null); setSelectedId(null); }}
+                  onOpenInvestigation={() => setTab("investigation")}
+                />
+              </div>
               <Panel title="Telemetry stream" kicker="LOCAL OBSERVATION LOG">
                 <div className="table-wrap">
                   <table>
@@ -1733,6 +1442,15 @@ export function Dashboard() {
 
         {tab === "import" && (
           <CsvImportPanel
+            onViewOnGlobe={(rows, name, saved) => {
+              setGlobeRecording({ observations: rows, name, saved });
+              setPitchMode(false);
+              setTargetFilter("all");
+              setQuery("");
+              setSelectedId(null);
+              setTab("overview");
+              window.setTimeout(() => document.getElementById("trajectory-view")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+            }}
             onImported={async () => {
               await refresh();
               setMessage("CSV import completed and the command feed was refreshed.");

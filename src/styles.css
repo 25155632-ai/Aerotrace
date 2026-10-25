@@ -2252,3 +2252,44 @@ button {
 .csv-track-list .csv-selected { border-color: #f6c568; color: #f6c568; }
 .csv-errors { max-height: 240px; overflow: auto; padding-left: 20px; font-size: 13px; }
 @media (max-width: 600px) { .csv-tracking-stats time { margin-left: 0; width: 100%; } .csv-timeline { flex-basis: 100%; } .csv-tracking .panel-heading { flex-wrap: wrap; gap: 12px; } }
+.airspace-backdrop { background: radial-gradient(ellipse at 65% 35%, #414e8c55, transparent 55%); }
+.airspace-panel { min-width: 0; overflow: hidden; }
+.airspace-panel .panel-heading { flex-wrap: wrap; gap: 10px; }
+.airspace-mode { font-size: 10px; letter-spacing: .08em; color: #c8ceff; border: 1px solid #5962a5; padding: 6px 9px; border-radius: 4px; }
+.airspace-context { margin: 8px 0 12px; color: #9fa9c6; font-size: 12px; overflow-wrap: anywhere; }
+.airspace-notice { padding: 10px 12px; border-left: 2px solid #ffd27d; background: #ffd27d09; color: #ffd27d; font-size: 12px; }
+.airspace-toolbar, .airspace-layers, .airspace-clock, .airspace-counts, .airspace-foot-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.airspace-toolbar { margin: 14px 0 10px; }
+.airspace-view-switch { display: flex; gap: 3px; padding: 3px; border: 1px solid #353758; border-radius: 6px; }
+.airspace-view-switch button { padding: 7px 10px; color: #a9b3cd; background: transparent; border: none; border-radius: 3px; font-size: 12px; cursor: pointer; }
+.airspace-view-switch button.active { background: #818cf8; color: #10122e; }
+.airspace-toolbar .action-button { min-height: 32px; padding: 7px 10px; font-size: 11px; }
+.airspace-layers { margin-bottom: 12px; font-size: 10px; color: #a7b4ce; gap: 12px; }
+.airspace-layers label, .airspace-layers span { display: flex; align-items: center; gap: 5px; }
+.airspace-layers input { accent-color: #818cf8; }
+.airspace-layers i { display: inline-block; width: 7px; height: 7px; border-radius: 50%; }
+.airspace-canvas { background: radial-gradient(ellipse at 50% 45%, #172545 0%, #070d21 70%); border: 1px solid #2a3b61; border-radius: 8px; overflow: hidden; }
+.airspace-canvas svg { display: block; width: 100%; height: auto; touch-action: none; cursor: grab; }
+.airspace-canvas svg:active { cursor: grabbing; }
+.airspace-aircraft { cursor: pointer; }
+.airspace-aircraft:focus { outline: none; }
+.airspace-aircraft:focus circle { stroke: white; stroke-width: 2; }
+.airspace-map-readout { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px; padding: 8px 12px; border-top: 1px solid #283453; color: #a1b1ce; font-size: 10px; }
+.airspace-clock { margin-top: 14px; font-size: 11px; }
+.airspace-clock .primary-button, .airspace-clock .action-button { padding: 8px 10px; font-size: 11px; }
+.airspace-clock label { display: flex; align-items: center; gap: 6px; }
+.airspace-clock select { padding: 5px; border: 1px solid #434c79; background: #11162f; color: #e3eaff; border-radius: 4px; }
+.airspace-clock time { font-variant-numeric: tabular-nums; color: #c6d3ee; margin-left: auto; }
+.airspace-clock input[type=range] { flex-basis: 100%; width: 100%; accent-color: #818cf8; }
+.airspace-counts { color: #a4b5d1; font-size: 10px; gap: 12px; margin-top: 10px; }
+.airspace-note { font-size: 10px; color: #8f9cba; line-height: 1.6; margin: 10px 0; }
+.airspace-selection { background: #151e39; border: 1px solid #2b3b60; border-radius: 5px; padding: 12px; display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 11px; }
+.airspace-selection strong { width: 100%; font-size: 14px; color: #e1e9ff; }
+.airspace-foot-actions { margin-top: 12px; }
+.airspace-aircraft-select { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 10px 0; color: #b5c2da; font-size: 11px; }
+.airspace-aircraft-select select { max-width: 100%; padding: 7px 9px; background: #11162f; color: #e3eaff; border: 1px solid #434c79; border-radius: 4px; }
+.airspace-foot-actions button { font-size: 11px; padding: 8px 10px; }
+.csv-globe-action { grid-column: 1 / -1; display: flex; align-items: center; flex-wrap: wrap; gap: 14px; padding: 14px; border: 1px solid #414e7c; background: #181c3b; border-radius: 6px; }
+.csv-globe-action span { color: #b0bbd4; font-size: 12px; }
+#trajectory-view { scroll-margin-top: 100px; }
+@media (max-width: 600px) { .airspace-clock time { width: 100%; margin-left: 0; } .airspace-toolbar { gap: 6px; } }
