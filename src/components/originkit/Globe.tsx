@@ -447,7 +447,7 @@ export default function Globe({
             try {
                 setIsLoading(true);
                 const response = await fetch(
-                    "https://raw.githubusercontent.com/martynafford/natural-earth-geojson/refs/heads/master/50m/physical/ne_50m_land.json"
+                    "/maps/land-110m.geojson"
                 );
                 if (!response.ok) throw new Error("Failed to load land data");
                 const landFeatures = await response.json();

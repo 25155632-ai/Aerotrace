@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import CsvTracking from "./CsvTracking";
 import AirspaceView from "./AirspaceView";
+import HeroBackground from "./HeroBackground";
 import LetterSwap from "./originkit/LetterSwap";
 import OrbitButton from "./originkit/OrbitButton";
 import {
@@ -773,7 +774,7 @@ export function Dashboard() {
   return (
     <div className="app-shell">
       <div className="ambient-grid" aria-hidden="true" />
-      <div className="world-backdrop airspace-backdrop" aria-hidden="true" />
+      <div className="world-backdrop" aria-hidden="true"><HeroBackground /></div>
 
       <header className="topbar">
         <div className="brand-lockup">
